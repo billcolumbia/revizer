@@ -1,0 +1,19 @@
+{
+  "name": "revizer",
+  "version": "0.1.0",
+  "description": "File versioning with file content hashing.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Bill Columbia",
+  "license": "ISC",
+  "bin": {
+    "revizer": "./index.js"
+  },
+  "dependencies": {
+    "commander": "^2.9.0",
+    "find": "^0.2.7",
+    "rev-hash": "^1.0.0"
+  }
+}
