@@ -1,13 +1,26 @@
 {
   "name": "revizer",
-  "version": "0.1.0",
-  "description": "File versioning with file content hashing.",
+  "version": "0.1.1",
+  "description": "File versioning with hashing.",
+  "keywords": [
+    "revision",
+    "static",
+    "asset",
+    "versioning",
+    "cache",
+    "bust"
+  ],
   "main": "index.js",
+  "repository": "https://github.com/billcolumbia/revizer",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Bill Columbia",
-  "license": "ISC",
+  "author": {
+    "name": "Bill Columbia",
+    "email": "hello@billcolumbia.com",
+    "url": "billcolumbia.com"
+  },
+  "license": "MIT",
   "bin": {
     "revizer": "./index.js"
   },

@@ -1,6 +1,12 @@
-# REVIZER 0.1.0
+# revizer 0.1.1
 
-A tool to help revision static assets with file hashing. Creates `manifest.json` for reading latest asset filenames.
+> A tool to help revision static assets with file hashing. Creates `manifest.json` for reading latest asset filenames.
+
+## Install
+
+```
+$ npm install --save revizer
+```
 
 ## Usage
 
