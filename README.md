@@ -10,9 +10,9 @@ $ npm install --save revizer
 
 ## Usage
 
-`-b, --base [string]` - Optional base path to the files to be hashed
-`-m, --manifest [string]` - Optional destination path for manifest.json
-`-l, --list [comma separated list]` - Required list of files to be hashed (relative to base)
+- `-b, --base [string]` - Optional base path to the files to be hashed
+- `-m, --manifest [string]` - Optional destination path for manifest.json
+- `-l, --list [comma separated list]` - Required list of files to be hashed (relative to base)
 
 ## Example
 
