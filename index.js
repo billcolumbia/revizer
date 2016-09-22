@@ -4,14 +4,17 @@ var program = require('commander')
 var revHash = require('rev-hash')
 var find = require('find')
 
+var noFileListInput = 'There was no file list specified. Check the command and make sure you passed a comma separated list with `-l` or `--list`. Something like: `-l bundle.css,bundle.js`.'
+
 // Create array from comma separated string
 var list = val => val.split(',')
 
 // CLI options
 program
-  .version('0.1.0')
+  .version('0.3.0')
   .option('-b, --base [value]', 'Where the assets to be hashed are.')
   .option('-m, --manifest [value]', 'Where the manifest file should go.')
+  .option('-d, --dirty [value]', 'Do not cleanup previous hashed builds.')
   .option('-l, --list <items>', 'Files to hash', list)
   .parse(process.argv)
 
@@ -20,31 +23,50 @@ var manifestPath = program.manifest || './'
 var filesToHash  = program.list
 var baseDir      = program.base || './'
 var manifest     = {}
+var dirty        = program.dirty || false
 
-// Cleans up old builds and starts hashing when done
+// Cleans up old hashed files
 function cleanup () {
-  find.file(/bundle-/, baseDir, function (files) {
-    files.forEach(function (file, i) {
-      fs.unlink(file)
-      if (i === files.length - 1) hashBuiltFiles()
+  return new Promise(resolve => {
+    // If dirty was specified, do not clean up old revisions.
+    if (dirty) {
+      resolve()
+      return
+    }
+    // This is still only targeting `bundle` named files. Will need a better
+    // way of targeting old revisions.
+    find.file(/bundle-/, baseDir, function (files) {
+      if (!files.length) resolve()
+      else {
+        files.forEach(function (file, i) {
+          fs.unlink(file)
+          // No more files to delete, move on
+          if (i === files.length - 1) resolve()
+        })
+      }
     })
-    if (!files.length) hashBuiltFiles()
   })
 }
 
-// Hashes builds and starts manifest creation when done
+// Hashes builds
 function hashBuiltFiles () {
-  filesToHash.forEach(function (file, i) {
-    var pathToFile = baseDir + file
-    var buffer = fs.readFileSync(pathToFile)
-    var hash = revHash(buffer)
-    var newFileName = pathToFile.replace('.','-' + hash + '.')
-    fs.writeFileSync(newFileName, buffer)
-    var lastSlash = file.lastIndexOf('/') + 1 || 0
-    manifest[file.substring(lastSlash)] = newFileName
-    if (i === filesToHash.length - 1) {
-      createManifest()
+  return new Promise((resolve, reject) => {
+    // If no files were passed, throw an error
+    if (!filesToHash) {
+      reject(Error(noFileListInput))
+      return
     }
+    filesToHash.forEach(function (file, i) {
+      var buffer = fs.readFileSync(baseDir + file)
+      var newFileName = file.replace('.','-' + revHash(buffer) + '.')
+      fs.writeFileSync(baseDir + newFileName, buffer)
+      var lastSlash = file.lastIndexOf('/') + 1 || 0
+      manifest[file.substring(lastSlash)] = newFileName
+      // No more files to hash, move on
+      if (i === filesToHash.length - 1) {
+        resolve()
+      }
+    })
   })
 }
 
@@ -53,5 +75,14 @@ function createManifest () {
   fs.writeFile(manifestPath + 'manifest.json', JSON.stringify(manifest))
 }
 
-// Run it.
+// Run it!
 cleanup()
+  .then(() => {
+    return hashBuiltFiles()
+  })
+  .then(() => {
+    return createManifest()
+  })
+  .catch(err => {
+    console.error(err)
+  })
