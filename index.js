@@ -2,7 +2,7 @@
 var fs = require('fs')
 var program = require('commander')
 var revHash = require('rev-hash')
-var find = require('find')
+var glob = require('glob')
 
 var noFileListInput = 'There was no file list specified. Check the command and make sure you passed a comma separated list with `-l` or `--list`. Something like: `-l bundle.css,bundle.js`.'
 
@@ -11,7 +11,7 @@ var list = val => val.split(',')
 
 // CLI options
 program
-  .version('0.5.0')
+  .version('0.6.0')
   .option('-b, --base [value]', 'Where the assets to be hashed are.')
   .option('-m, --manifest [value]', 'Where the manifest file should go.')
   .option('-c, --clean', 'Clean previous hashed files.')
@@ -25,7 +25,6 @@ var baseDir      = program.base || './'
 var manifest     = {}
 var clean        = program.clean || false
 
-
 // Cleans up old hashed files
 function cleanup () {
   return new Promise(resolve => {
@@ -35,7 +34,7 @@ function cleanup () {
       return
     }
     // Targets files suffixed with rz (added to hash by revizer)
-    find.file(/rz./, baseDir, function (files) {
+    glob('*-rz.*', { cwd: baseDir }, (er, files) => {
       if (!files.length) resolve()
       else {
         files.forEach(function (file, i) {
@@ -58,7 +57,7 @@ function hashBuiltFiles () {
     }
     filesToHash.forEach(function (file, i) {
       var buffer = fs.readFileSync(baseDir + file)
-      var newFileName = file.replace('.','-' + revHash(buffer) + 'rz.')
+      var newFileName = file.replace('.','-' + revHash(buffer) + '-rz.')
       fs.writeFileSync(baseDir + newFileName, buffer)
       var lastSlash = file.lastIndexOf('/') + 1 || 0
       manifest[file.substring(lastSlash)] = newFileName
