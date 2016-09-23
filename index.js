@@ -11,10 +11,10 @@ var list = val => val.split(',')
 
 // CLI options
 program
-  .version('0.3.0')
+  .version('0.4.0')
   .option('-b, --base [value]', 'Where the assets to be hashed are.')
   .option('-m, --manifest [value]', 'Where the manifest file should go.')
-  .option('-d, --dirty [value]', 'Do not cleanup previous hashed builds.')
+  .option('-c, --clean [value]>', 'Clean previous hashed files.')
   .option('-l, --list <items>', 'Files to hash', list)
   .parse(process.argv)
 
@@ -23,19 +23,19 @@ var manifestPath = program.manifest || './'
 var filesToHash  = program.list
 var baseDir      = program.base || './'
 var manifest     = {}
-var dirty        = program.dirty || false
+var clean        = program.clean || false
 
 // Cleans up old hashed files
 function cleanup () {
   return new Promise(resolve => {
     // If dirty was specified, do not clean up old revisions.
-    if (dirty) {
+    if (!clean) {
       resolve()
       return
     }
     // This is still only targeting `bundle` named files. Will need a better
     // way of targeting old revisions.
-    find.file(/bundle-/, baseDir, function (files) {
+    find.file(/-rz/, baseDir, function (files) {
       if (!files.length) resolve()
       else {
         files.forEach(function (file, i) {
@@ -58,7 +58,7 @@ function hashBuiltFiles () {
     }
     filesToHash.forEach(function (file, i) {
       var buffer = fs.readFileSync(baseDir + file)
-      var newFileName = file.replace('.','-' + revHash(buffer) + '.')
+      var newFileName = file.replace('.','-' + revHash(buffer) + 'rz.')
       fs.writeFileSync(baseDir + newFileName, buffer)
       var lastSlash = file.lastIndexOf('/') + 1 || 0
       manifest[file.substring(lastSlash)] = newFileName
