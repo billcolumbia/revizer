@@ -11,10 +11,10 @@ var list = val => val.split(',')
 
 // CLI options
 program
-  .version('0.4.0')
+  .version('0.5.0')
   .option('-b, --base [value]', 'Where the assets to be hashed are.')
   .option('-m, --manifest [value]', 'Where the manifest file should go.')
-  .option('-c, --clean [value]>', 'Clean previous hashed files.')
+  .option('-c, --clean', 'Clean previous hashed files.')
   .option('-l, --list <items>', 'Files to hash', list)
   .parse(process.argv)
 
@@ -25,6 +25,7 @@ var baseDir      = program.base || './'
 var manifest     = {}
 var clean        = program.clean || false
 
+
 // Cleans up old hashed files
 function cleanup () {
   return new Promise(resolve => {
@@ -33,9 +34,8 @@ function cleanup () {
       resolve()
       return
     }
-    // This is still only targeting `bundle` named files. Will need a better
-    // way of targeting old revisions.
-    find.file(/-rz/, baseDir, function (files) {
+    // Targets files suffixed with rz (added to hash by revizer)
+    find.file(/rz./, baseDir, function (files) {
       if (!files.length) resolve()
       else {
         files.forEach(function (file, i) {
