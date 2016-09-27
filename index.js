@@ -11,7 +11,7 @@ var list = val => val.split(',')
 
 // CLI options
 program
-  .version('0.6.0')
+  .version('0.7.0')
   .option('-b, --base [value]', 'Where the assets to be hashed are.')
   .option('-m, --manifest [value]', 'Where the manifest file should go.')
   .option('-c, --clean', 'Clean previous hashed files.')
@@ -35,10 +35,11 @@ function cleanup () {
     }
     // Targets files suffixed with rz (added to hash by revizer)
     glob('*-rz.*', { cwd: baseDir }, (er, files) => {
+      console.log(files)
       if (!files.length) resolve()
       else {
         files.forEach(function (file, i) {
-          fs.unlink(file)
+          fs.unlink(baseDir + file)
           // No more files to delete, move on
           if (i === files.length - 1) resolve()
         })
@@ -74,14 +75,17 @@ function createManifest () {
   fs.writeFile(manifestPath + 'manifest.json', JSON.stringify(manifest))
 }
 
-// Run it!
-cleanup()
-  .then(() => {
-    return hashBuiltFiles()
-  })
-  .then(() => {
-    return createManifest()
-  })
-  .catch(err => {
-    console.error(err)
-  })
+function revizer () {
+  cleanup()
+    .then(() => {
+      return hashBuiltFiles()
+    })
+    .then(() => {
+      return createManifest()
+    })
+    .catch(err => {
+      console.error(err)
+    })
+}
+
+revizer()
