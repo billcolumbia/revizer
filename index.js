@@ -11,7 +11,7 @@ var list = val => val.split(',')
 
 // CLI options
 program
-  .version('0.7.0')
+  .version('0.7.1')
   .option('-b, --base [value]', 'Where the assets to be hashed are.')
   .option('-m, --manifest [value]', 'Where the manifest file should go.')
   .option('-c, --clean', 'Clean previous hashed files.')
@@ -35,7 +35,6 @@ function cleanup () {
     }
     // Targets files suffixed with rz (added to hash by revizer)
     glob('*-rz.*', { cwd: baseDir }, (er, files) => {
-      console.log(files)
       if (!files.length) resolve()
       else {
         files.forEach(function (file, i) {

@@ -1,4 +1,4 @@
-# revizer 0.7.0
+# revizer 0.7.1
 
 > A tool to help revision static assets with file hashing. Creates `manifest.json` for reading latest asset filenames.
 
